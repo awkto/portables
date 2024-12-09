@@ -3,10 +3,16 @@ name: Publish Binaries
 on:
   push:
     branches: [ main ]
-    # This will trigger on push and look for binary files in root
     paths-ignore:
       - '.github/**'
       - '*.md'
+  # Add manual workflow dispatch
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual trigger'
 
 jobs:
   publish-binaries:
@@ -41,22 +47,6 @@ jobs:
                 --notes "Automated binary package for $binary"
 
               echo "Published $binary as a release package"
-            fi
-          fi
-        done
-
-    # Optional: Publish to GitHub Packages 
-    - name: Publish to GitHub Packages
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        for binary in *; do
-          if [ -x "$binary" ] && [ -f "$binary" ]; then
-            if [[ "$binary" != *.{yml,yaml,md,txt,json} ]] && [[ "$binary" != ".github" ]]; then
-              filename=$(basename "$binary")
-              
-              # Example of publishing to GitHub Packages (adjust as needed)
-              gh package upload "$binary" --type=binary
             fi
           fi
         done
