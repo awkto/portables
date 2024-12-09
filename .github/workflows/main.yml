@@ -6,7 +6,6 @@ on:
     paths-ignore:
       - '.github/**'
       - '*.md'
-  # Add manual workflow dispatch
   workflow_dispatch:
     inputs:
       reason:
@@ -24,9 +23,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Set up GitHub CLI
-      uses: actions/setup-github-cli@v1
 
     - name: Find and publish binary files
       env:
