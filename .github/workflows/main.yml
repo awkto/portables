@@ -24,12 +24,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Delete Existing Latest Release
+    - name: Delete Existing Latest Tag and Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Delete existing 'latest' release if it exists
-        gh release delete latest -y || true
+        # Delete the release first
+        gh release delete latest --yes || true
+        # Delete local tag
+        git tag -d latest || true
+        # Delete remote tag
+        git push origin :refs/tags/latest || true
+        # Create new tag at current commit
+        git tag latest
+        git push origin latest
 
     - name: Create New Latest Release
       env:
@@ -38,9 +45,7 @@ jobs:
         # Find executable files in the root directory
         binaries=()
         for binary in *; do
-          # Check if file is executable and not a directory
           if [ -x "$binary" ] && [ -f "$binary" ]; then
-            # Exclude workflow and typical non-binary files
             if [[ "$binary" != *.{yml,yaml,md,txt,json} ]] && [[ "$binary" != ".github" ]]; then
               binaries+=("$binary")
             fi
@@ -50,9 +55,9 @@ jobs:
         # Create new release with all binary files
         if [ ${#binaries[@]} -gt 0 ]; then
           gh release create latest "${binaries[@]}" \
-            --generate-notes \
             --title "Latest Binaries" \
-            --notes "Automated release with all binary files from the repository"
+            --notes "Automated release with all binary files" \
+            --target main
         else
           echo "No binary files found to release"
         fi
