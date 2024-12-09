@@ -1,0 +1,62 @@
+name: Publish Binaries
+
+on:
+  push:
+    branches: [ main ]
+    # This will trigger on push and look for binary files in root
+    paths-ignore:
+      - '.github/**'
+      - '*.md'
+
+jobs:
+  publish-binaries:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up GitHub CLI
+      uses: actions/setup-github-cli@v1
+
+    - name: Find and publish binary files
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Find executable files in the root directory
+        for binary in *; do
+          # Check if file is executable and not a directory
+          if [ -x "$binary" ] && [ -f "$binary" ]; then
+            # Exclude workflow and typical non-binary files
+            if [[ "$binary" != *.{yml,yaml,md,txt,json} ]] && [[ "$binary" != ".github" ]]; then
+              echo "Publishing binary: $binary"
+              
+              # Create a release with the filename as the tag
+              gh release create "$binary-$(date +%Y%m%d)" \
+                "$binary" \
+                --title "Binary: $binary" \
+                --notes "Automated binary package for $binary"
+
+              echo "Published $binary as a release package"
+            fi
+          fi
+        done
+
+    # Optional: Publish to GitHub Packages 
+    - name: Publish to GitHub Packages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        for binary in *; do
+          if [ -x "$binary" ] && [ -f "$binary" ]; then
+            if [[ "$binary" != *.{yml,yaml,md,txt,json} ]] && [[ "$binary" != ".github" ]]; then
+              filename=$(basename "$binary")
+              
+              # Example of publishing to GitHub Packages (adjust as needed)
+              gh package upload "$binary" --type=binary
+            fi
+          fi
+        done
