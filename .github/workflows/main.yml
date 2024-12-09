@@ -24,25 +24,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Find and publish binary files
+    - name: Delete Existing Latest Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Delete existing 'latest' release if it exists
+        gh release delete latest -y || true
+
+    - name: Create New Latest Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Find executable files in the root directory
+        binaries=()
         for binary in *; do
           # Check if file is executable and not a directory
           if [ -x "$binary" ] && [ -f "$binary" ]; then
             # Exclude workflow and typical non-binary files
             if [[ "$binary" != *.{yml,yaml,md,txt,json} ]] && [[ "$binary" != ".github" ]]; then
-              echo "Publishing binary: $binary"
-              
-              # Create a release with the filename as the tag
-              gh release create "$binary-$(date +%Y%m%d)" \
-                "$binary" \
-                --title "Binary: $binary" \
-                --notes "Automated binary package for $binary"
-
-              echo "Published $binary as a release package"
+              binaries+=("$binary")
             fi
           fi
         done
+
+        # Create new release with all binary files
+        if [ ${#binaries[@]} -gt 0 ]; then
+          gh release create latest "${binaries[@]}" \
+            --title "Latest Binaries" \
+            --notes "Automated release with all binary files from the repository"
+        else
+          echo "No binary files found to release"
+        fi
