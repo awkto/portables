@@ -50,6 +50,7 @@ jobs:
         # Create new release with all binary files
         if [ ${#binaries[@]} -gt 0 ]; then
           gh release create latest "${binaries[@]}" \
+            --generate-notes \
             --title "Latest Binaries" \
             --notes "Automated release with all binary files from the repository"
         else
