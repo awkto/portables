@@ -6,25 +6,22 @@ One use cases is SUSE Harvester where the filesystem is read-only and you're not
 
 Another use case is a system that did not have BZIP2 installed, so I could not download and extract the official BTOP packages from their releases.
 
-## BTOP
-
-### Btop via Curl
+## Grab binaries with **curl**
 ```
 curl https://github.com/awkto/portables/releases/download/latest/btop -o btop
+curl https://github.com/awkto/portables/releases/download/latest/nano -o nano
+curl https://github.com/awkto/portables/releases/download/latest/neofetch -o neofetch
+curl https://github.com/awkto/portables/releases/download/latest/helm -o helm
+curl https://github.com/awkto/portables/releases/download/latest/jq -o jq
+curl https://github.com/awkto/portables/releases/download/latest/kubectl -o kubectl
 ```
 
-### Btop via Wget
+## Grab binaries with **wget**
 ```
 wget https://github.com/awkto/portables/releases/download/latest/btop
-```
-
-## NEOFETCH
-### Neofetch via Curl
-```
-curl https://github.com/awkto/portables/releases/download/latest/neofetch -o neofetch
-```
-
-## Neofetch via Wget
-```
+wget https://github.com/awkto/portables/releases/download/latest/nano
 wget https://github.com/awkto/portables/releases/download/latest/neofetch
+wget https://github.com/awkto/portables/releases/download/latest/helm
+wget https://github.com/awkto/portables/releases/download/latest/jq
+wget https://github.com/awkto/portables/releases/download/latest/kubectl
 ```
